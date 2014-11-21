@@ -14,6 +14,7 @@ void loop() {
   Serial.print(" , temperature = ");
   Serial.println(Vtem);
   */
-  Serial.write(Vldr);
+  String str = String(Vldr)+","+String(Vtem)+",\n";
+  Serial.print(str);
   delay(1000);        // delay in between reads for stability
 }
