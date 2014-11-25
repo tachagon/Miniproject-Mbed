@@ -1,6 +1,6 @@
 void setup() {
   // initialize serial communication at 9600 bits per second:
-  Serial.begin(115200);
+  Serial.begin(9600);
 }
 
 void loop() {
@@ -14,6 +14,7 @@ void loop() {
   Serial.print(" , temperature = ");
   Serial.println(Vtem);
   */
-  Serial.write(Vldr);
+  String str = String(Vldr)+","+String(Vtem)+",\n";
+  Serial.print(str);
   delay(1000);        // delay in between reads for stability
 }
