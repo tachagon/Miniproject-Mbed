@@ -39,6 +39,7 @@ void USART_send( uint8_t data ) {
   // Put data into buffer, sends the data
   UDR0 = data;
 }
+
 void send_m( String &s ) {
   for(uint16_t i = 0 ; i < s.length(); i++){
     USART_send(s[i]);
@@ -125,25 +126,14 @@ void setup() {
   ADC_init();
   T1_init();
   DDRD |= (1<<DDD1); // PD1/TXD as output
-  //Serial.begin(9600); 
 }
 
 void loop() {
   // read the input on analog pin 0:
   int Vldr = readADC(0);
   int Vtem = readADC(1);
-  // print out the value you read:
-  /*
-  Serial.print("LDR = ");
-  Serial.print(Vldr);
-  Serial.print(" , temperature = ");
-  Serial.println(Vtem);
-  */
+  // print out the value you read
   String str = String(Vldr)+","+String(Vtem)+"\n";
-  //Serial.print(str);
-  //int b = 20;
-  //char test[] = "abc" + char(b);
-  //char da[10] = String(Vldr) + "," + String(Vtem);
   uint8_t data = 100;
   send_m(str);
   PORTD |= 1 << 3;
