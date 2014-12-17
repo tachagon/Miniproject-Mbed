@@ -1,7 +1,7 @@
 void setup() {
   // initialize serial communication at 9600 bits per second:
   pinMode(4 ,OUTPUT);
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop() {
@@ -9,7 +9,7 @@ void loop() {
   int Vldr = analogRead(A0);
   int Vtem = analogRead(A1);
   // print out the value you read:
-  
+  /*
   Serial.print("LDR = ");
   Serial.print(Vldr);
   Serial.print(" , temperature = ");
@@ -18,5 +18,8 @@ void loop() {
   Serial.write(String(Vldr)+ " " + String(Vtem));
   digitalWrite(4 ,HIGH);
   
+=======
+  */
+  Serial.write(Vldr + " " +);
   delay(1000);        // delay in between reads for stability
 }
