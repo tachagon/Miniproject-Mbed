@@ -1,8 +1,9 @@
+//implement code from 010123119 ESD_Handout_6,7 write by M.R. Rawat Siripokarpirom
 
 #define FOSC (16000000UL)
 #include <avr/io.h>
-//*********************************** usart set and method ***********************************
 
+//*********************************** usart set and method ***********************************
 void USART_init( uint16_t baudrate ) {
   uint16_t ubrr;
   // UCSR0A register settings
