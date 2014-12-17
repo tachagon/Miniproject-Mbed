@@ -1,4 +1,6 @@
 
+
+//use digital pin 3 , analog pin 0(ldr),1(tem)
 #define FOSC (16000000UL)
 #include <avr/io.h>
 //*********************************** usart set and method ***********************************
@@ -66,7 +68,7 @@ void ADC_init() {
   ADCSRA |= (1<<ADEN)|(1<<ADSC)|(1<<ADATE);
   // The first conversion starts 25 FADC cycles after ADEN set
   // 16MHz/128 = 125kHz => 8usec x 25 = 200 usec at least
-  delayMicroseconds(205);
+  delay_micro(205);
 }
 
 uint16_t readADC( uint8_t channel ){
@@ -78,7 +80,7 @@ uint16_t readADC( uint8_t channel ){
     ADCSRA |= (1<<ADIF);
     ADMUX &= 0xF0;
     ADMUX |= (channel & 0x0F);
-    delayMicroseconds(205);
+    delay_micro(205);
   }
   x = (uint16_t)ADCL;
   x |= ((uint16_t)ADCH << 8);
@@ -86,8 +88,10 @@ uint16_t readADC( uint8_t channel ){
 }
 
 //*********************************** end ADC set and method | time/ counter 1 set and method ***********************************
+volatile uint16_t count = 0;
 
-void T1_init() {
+void T1_init(uint8_t prescale) {
+  count = 0;
   TCNT1 = 0;
   OCR1A = 0;
   OCR1B = 0;
@@ -96,64 +100,47 @@ void T1_init() {
   TCCR1B = 0;
   TIMSK1 = 0; // disable all interrupts
   TIFR1 = (1<<ICF1) | (1<<OCF1B) | (1<<OCF1A) | (1<<TOV1); // clear all flags
-  TCNT1 = 0;
   // Use Timer/Count1 in normal mode (no output compare, no PWM)
-  TCCR1B |= (1<<CS12) | (1<<CS10); // prescaler=1024
+  if(prescale == 0) { 
+    TCCR1B |= (1<<CS12) | (1<<CS10); // prescaler=1024
+  } else {
+    TCCR1B |= (1<<CS11); // prescaler=8
+  }
   TIMSK1 = (1<<TOIE1); // Timer1 Overflow Interrupt Enable
 }
-volatile uint16_t count = 0;
 
 ISR(TIMER1_OVF_vect) { // ISR for Timer/Counter1 Overflow Interrupt
   count++; // increment counter
 }
 
-void delay_test(uint16_t msec){
-  TCCR1B |= (1<<CS12) | (1<<CS10); // prescaler=1024
-  count = 0;
-  TCNT1 = 0;
-  uint16_t real_count = msec/0.064;
+void delay_micro(uint16_t micro_sec){
+  T1_init(1);
+  uint16_t real_count = micro_sec/0.5;
   uint16_t b = real_count/65535;
   uint16_t pece = real_count%65535;
   while(TCNT1 < pece or count < b);
 }
 
-//*********************************** end time/ counter 1 set and method ***********************************
-int LED_PIN = 3;
+void delay_milli(uint16_t msec){
+  T1_init(0);
+  uint32_t real_count = msec/0.064;
+  uint16_t b = real_count/65535;
+  uint16_t pece = real_count%65535;
+  while(TCNT1 < pece or count < b);
+}
+
+//*********************************** end time/counter1 set and method | main code ***********************************
 
 void setup() {
-<<<<<<< HEAD
   // initialize serial communication at 9600 bits per second:
-  pinMode(4 ,OUTPUT);
-  Serial.begin(115200);
-=======
   DDRD |= 1 << DDD3;// set pin3 = out
   USART_init(9600);//set rate
   ADC_init();
-  T1_init();
   DDRD |= (1<<DDD1); // PD1/TXD as output
->>>>>>> b0f2aed2472c108d4d71ff904894af548fa0cc95
 }
 
 void loop() {
-  // read the input on analog pin 0:
-<<<<<<< HEAD
-  int Vldr = analogRead(A0);
-  int Vtem = analogRead(A1);
-  // print out the value you read:
-  /*
-  Serial.print("LDR = ");
-  Serial.print(Vldr);
-  Serial.print(" , temperature = ");
-  Serial.println(Vtem);
-  
-  Serial.write(String(Vldr)+ " " + String(Vtem));
-  digitalWrite(4 ,HIGH);
-  
-=======
-  */
-  Serial.write(Vldr + " " +);
-  delay(1000);        // delay in between reads for stability
-=======
+  // read the input on analog pin 0,1:
   int Vldr = readADC(0);
   int Vtem = readADC(1);
   // print out the value you read
@@ -161,13 +148,12 @@ void loop() {
   uint8_t data = 100;
   send_m(str);
   PORTD |= 1 << 3;
-  delay_test(1000);
+  delay_milli(100);
   PORTD &= ~( 1 << 3 );
-  delay_test(1000);        // delay in between reads for stability
->>>>>>> b0f2aed2472c108d4d71ff904894af548fa0cc95
+  delay_milli(13000);
+  
 }
-
-//******************************** method ***********************************
+//********************************end main code  ***********************************
 
 
 
