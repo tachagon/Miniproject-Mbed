@@ -1,9 +1,7 @@
-<<<<<<< HEAD
 //implement code from 010123119 ESD_Handout_6,7 write by M.R. Rawat Siripokarpirom
 
-=======
+
 //use digital pin 3 , analog pin 0(ldr),1(tem)
->>>>>>> origin/master
 #define FOSC (16000000UL)
 #include <avr/io.h>
 
