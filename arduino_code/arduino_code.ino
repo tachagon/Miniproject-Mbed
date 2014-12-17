@@ -1,5 +1,3 @@
-
-
 //use digital pin 3 , analog pin 0(ldr),1(tem)
 #define FOSC (16000000UL)
 #include <avr/io.h>
@@ -144,14 +142,24 @@ void loop() {
   int Vldr = readADC(0);
   int Vtem = readADC(1);
   // print out the value you read
-  String str = String(Vldr)+","+String(Vtem)+"\n";
-  uint8_t data = 100;
+  String str = String(Vldr) + "," + String(Vtem) + "\n";
   send_m(str);
+  
   PORTD |= 1 << 3;
   delay_milli(100);
   PORTD &= ~( 1 << 3 );
   delay_milli(13000);
   
+  // below this line for lcd code
+  //--------------------------------------------
+  float Vldr2 = (float)Vldr*5/1023;
+  float Vtem2 = (float)Vtem*100/1023;
+  char text_lcd[8];
+  char text_lcd2[8];
+  dtostrf(Vldr2, 4, 2, text_lcd);
+  dtostrf(Vtem2, 4, 2, text_lcd2);
+  String str3 = String(text_lcd) + "," + String(text_lcd2) + "\n";
+  send_m(str3);
 }
 //********************************end main code  ***********************************
 
