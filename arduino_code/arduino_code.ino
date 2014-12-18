@@ -1,6 +1,4 @@
 //implement code from 010123119 ESD_Handout_6,7 write by M.R. Rawat Siripokarpirom
-
-
 //use digital pin 3 , analog pin 0(ldr),1(tem)
 #define FOSC (16000000UL)
 #include <avr/io.h>
@@ -115,6 +113,7 @@ ISR(TIMER1_OVF_vect) { // ISR for Timer/Counter1 Overflow Interrupt
 }
 
 void delay_micro(uint16_t micro_sec){
+  //prescal = 8 , 16 MHz / 8 = 2 MHz then 1 count = 0.5 usec
   T1_init(1);
   uint16_t real_count = micro_sec/0.5;
   uint16_t b = real_count/65535;
@@ -123,6 +122,7 @@ void delay_micro(uint16_t micro_sec){
 }
 
 void delay_milli(uint16_t msec){
+  //prescal = 1024 , 16 MHz / 1024 = 15625 Hz then 1 count = 64 usec
   T1_init(0);
   uint32_t real_count = msec/0.064;
   uint16_t b = real_count/65535;
@@ -133,9 +133,8 @@ void delay_milli(uint16_t msec){
 //*********************************** end time/counter1 set and method | main code ***********************************
 
 void setup() {
-  // initialize serial communication at 9600 bits per second:
   DDRD |= 1 << DDD3;// set pin3 = out
-  USART_init(9600);//set rate
+  USART_init(9600);//set USART unit at baudrate = 9600
   ADC_init();
   DDRD |= (1<<DDD1); // PD1/TXD as output
 }
@@ -148,9 +147,9 @@ void loop() {
   String str = String(Vldr) + "," + String(Vtem) + "\n";
   send_m(str);
   
-  PORTD |= 1 << 3;
+  PORTD |= 1 << 3;//set High port digital pin 3
   delay_milli(100);
-  PORTD &= ~( 1 << 3 );
+  PORTD &= ~( 1 << 3 );//set Low port digital pin 3
   delay_milli(13000);
   
   // below this line for lcd code
