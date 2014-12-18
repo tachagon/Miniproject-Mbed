@@ -1,5 +1,9 @@
 //implement code from 010123119 ESD_Handout_6,7 write by M.R. Rawat Siripokarpirom
 
+//use LiquidCrystal_I2C Library
+#include "LiquidCrystal_I2C.h"
+#include "Wire.h"
+LiquidCrystal_I2C LCD(0x27, 16, 2);
 
 //use digital pin 3 , analog pin 0(ldr),1(tem)
 #define FOSC (16000000UL)
@@ -138,6 +142,8 @@ void setup() {
   USART_init(9600);//set rate
   ADC_init();
   DDRD |= (1<<DDD1); // PD1/TXD as output
+  LCD.init();
+  LCD.backlight();
 }
 
 void loop() {
@@ -156,13 +162,17 @@ void loop() {
   // below this line for lcd code
   //--------------------------------------------
   float Vldr2 = (float)Vldr*5/1023;
-  float Vtem2 = (float)Vtem*100/1023;
+  float Vtem2 = (float)Vtem*500/1023/3;
   char text_lcd[8];
   char text_lcd2[8];
   dtostrf(Vldr2, 4, 2, text_lcd);
   dtostrf(Vtem2, 4, 2, text_lcd2);
   String str3 = String(text_lcd) + "," + String(text_lcd2) + "\n";
-  send_m(str3);
+  //send_m(str3);
+  LCD.clear();
+  LCD.print("   LDR "+String(text_lcd)+" V   ");
+  LCD.setCursor(0, 1);
+  LCD.print("Temperature "+String(text_lcd2));
 }
 //********************************end main code  ***********************************
 
