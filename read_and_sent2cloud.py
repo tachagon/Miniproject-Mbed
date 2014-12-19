@@ -6,12 +6,12 @@ import webbrowser
 
 ser = serial.Serial()       # create
 ser.baudrate    = 9600      # baudrate
-ser.port        = 2     # maybe change for your computer
+ser.port        = "/dev/ttyACM0"     # maybe change for your computer
 ser.timeout     = 1         # tiemout 1 second
 ser.open()                  # open serial port
 
-plot_Vldr = Sent2plotly(0, "Plot-Vldr", "Vldr")
-plot_Tem = Sent2plotly(1, "Plot-Tem", "Tem")
+plot_Vldr = Sent2plotly(0, "Plot-Vldr", "Voltage of LDR")
+plot_Tem = Sent2plotly(1, "Plot-Tem", "Temperature")
 
 webbrowser.open_new_tab("index.html")
 
