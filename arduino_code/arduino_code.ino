@@ -151,13 +151,12 @@ void loop() {
   int Vldr = readADC(0);
   int Vtem = readADC(1);
   // print out the value you read
-  String str = String(Vldr) + "," + String(Vtem) + "\n";
+  String str = String(Vldr) + "," + String(Vtem) + ",\n";
   send_m(str);
   
   PORTD |= 1 << 3;
   delay_milli(100);
   PORTD &= ~( 1 << 3 );
-  delay_milli(15900);
   
   // below this line for lcd code
   //--------------------------------------------
@@ -173,6 +172,7 @@ void loop() {
   LCD.print("   LDR "+String(text_lcd)+" V   ");
   LCD.setCursor(0, 1);
   LCD.print("Temperature "+String(text_lcd2));
+  delay_milli(15900);
 }
 //********************************end main code  ***********************************
 
