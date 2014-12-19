@@ -157,7 +157,7 @@ void loop() {
   PORTD |= 1 << 3;
   delay_milli(100);
   PORTD &= ~( 1 << 3 );
-  delay_milli(13000);
+  delay_milli(15900);
   
   // below this line for lcd code
   //--------------------------------------------
