@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Miniproject Embedded</title>
+    <meta charset="utf-8">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.1.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <link rel="stylesheet" type="text/css" href="./stylesheet/applications.css">
+</head>
+
+<body>
+<center>
+    <div id="page-wrap" class="graph_light">
+        <h1>Graph of Light Sensor</h1>
+        <div id="current_light"></div>
+        <canvas id="myCanvas" width="1100" height="550" class="myCanvas"></canvas>
+    </div>
+    <div id="page-wrap" class="graph_tem">
+        <h1>Graph of Temperature Sensor</h1>
+        <div id="current_tem"></div>
+        <canvas id="myCanvas2" width="1100" height="550" class="myCanvas"></canvas>
+    </div>
+    <div id="page-wrap">
+        <iframe width="800" height="600" frameborder="0" seamless="seamless" scrolling="no" src="https://plot.ly/~tachagon/17.embed?width=800&height=600"></iframe>
+    </div>
+    <div id="page-wrap">
+        <iframe width="800" height="600" frameborder="0" seamless="seamless" scrolling="no" src="https://plot.ly/~tachagon/18.embed?width=800&height=600"></iframe>
+    </div>
+</center>
+
+<script>
+    var items = [];
+    var field1 = [];  // keep data of field1
+    var field2 = [];  // keep data of field2
+    var timeField1 = [];  // keep time of data of field1
+    var timeField2 = [];  // keep time of data of field2
+    $(document).ready(function(){
+        $.getJSON("http://api.thingspeak.com/channels/18187/feed.json?key=PT288JPS3J2PXRB5", function(data){
+            $.each(data, function(key, value){
+                if (key == "feeds") {
+                    items.push(value);
+                    console.log("key", key, "value", value);
+                }
+            });
+            $.each(items, function(index, value){
+                for (var i=0; i<value.length; i++) {
+                    field1.push(value[i].field1);
+                    field2.push(value[i].field2);
+                    timeField1.push(value[i].created_at);
+                    timeField2.push(value[i].created_at);
+                }
+                
+                // this function use for convert Time(string) to Time(int)
+                function timeStringToInt(timeField) {
+                    var temp = [];
+                    for(var i=0; i<timeField.length; i++){
+                        temp.push(timeField[i].split(/-|:|T|Z/, 6));
+                    }
+                    var out = [];
+                    for(var i=0; i<temp.length; i++){
+                        var temp2 = [];
+                        for(var j=0; j<temp[0].length; j++){
+                            temp2.push(parseInt(temp[i][j]));
+                        }
+                        out.push(temp2);
+                    }
+                    return out;
+                }
+                
+                field1.reverse();
+                field2.reverse();
+                timeField1.reverse();
+                timeField2.reverse();
+                console.log("field1", field1);
+                console.log("field2", field2);
+                timeField1 = timeStringToInt(timeField1);
+                timeField2 = timeStringToInt(timeField2);
+                console.log("time f1", timeField1);
+                var str_light = "<h2>"+getMonth(timeField1[0][1])+" "+timeField1[0][2]+" ,"+timeField1[0][0]+"("+(timeField1[0][3]+7)+":"+timeField1[0][4]+":"+timeField1[0][5]+"): "+field1[0]+" V</h2>"
+                var str_tem = "<h2>"+getMonth(timeField2[0][1])+" "+timeField2[0][2]+" ,"+timeField2[0][0]+"("+(timeField2[0][3]+7)+":"+timeField2[0][4]+":"+timeField2[0][5]+"): "+field2[0]+" ˚C</h2>"
+                $("#current_light").append(str_light);
+                $("#current_tem").append(str_tem);
+                
+                // this function for calculate time difference for x Axis
+                function timeDiff(time1, time2) {
+                    var temp = [];
+                    for (var i=0; i<=2; i++) {
+                        temp.push(time1[i] - time2[i]);
+                    }
+                    var weightTime1 = (time1[3]*3600.0)+(time1[4]*60.0)+time1[5];
+                    var weightTime2 = (time2[3]*3600.0)+(time2[4]*60.0)+time2[5];
+                    return (weightTime1 - weightTime2)+(temp[2]*24*60*60);
+                }
+                
+                // this function for generate position of x in the Graph
+                function genX(xB, timeDiff) {
+                    // every 15 sec will change position is 20px from last position
+                    return xB - ((timeDiff*20.0/15.0));
+                }
+                
+                // this function for generate position of y in the Graph
+                function genY(data, maxY, height) {
+                    return height - (data*height/maxY);
+                }
+                
+                // This function for get month from integer to string
+                function getMonth(month) {
+                    Months=['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    return Months[month]
+                }
+                
+                // this function use for plot Graph
+                function Graph(canvasID, data, time, maxY) {
+                    //----------------------------initital----------------------------
+                    var c = document.getElementById(canvasID);
+                    var ctx = c.getContext("2d");
+                    ctx.beginPath();
+                    var xB;
+                    var yB;
+                    //--------------------------draw scale----------------------------
+                    ctx.font = 'italic 15pt Calibri';
+                    ctx.fillStyle='#FFFF99';
+                    ctx.fillText(maxY.toString(), 1057, 15);
+                    ctx.fillText((maxY/2).toString(), 1057, 257.5);
+                    ctx.fillText("0", 1057, 507.5);
+                    ctx.moveTo(0, 505);
+                    ctx.lineTo(1055, 505);
+                    ctx.moveTo(1055, 505);
+                    ctx.lineTo(1055, 0);
+                    ctx.moveTo(0, 250);
+                    ctx.lineTo(1055, 250);
+                    //----------------------------------------------------------------
+                    ctx.fillStyle='#FFFF99';
+                    ctx.fill();
+                    ctx.strokeStyle='#FFFF99';
+                    ctx.stroke();
+                    ctx.closePath();
+                    ctx.beginPath();
+                    //---------------------------plot data----------------------------
+                    for (var i=0; i<data.length ;i++) {
+                        var x=0.0;
+                        var y=0.0;
+                        if (i != 0) {
+                            x = genX(xB, timeDiff(time[i-1], time[i]));
+                        }else{
+                            x = genX(c.width-50, 0);
+                        }
+                        y = genY(data[i], maxY, c.height-50);
+                        //console.log("x", x);
+                        ctx.moveTo(xB, yB);
+                        ctx.lineTo(x, y);
+                        ctx.moveTo(x, y);
+                        ctx.arc(x, y, 5, 0, 2*Math.PI);
+                        ctx.font = 'italic 10pt Calibri';
+                        var offset = 0;
+                        if (i%2==0) {
+                            offset = -10;
+                        }else{
+                            offset = 20;
+                        }
+                        ctx.fillText(data[i].toString(), x-13, y+offset);
+                        xB = x;
+                        yB = y;
+                    }
+                    ctx.fillStyle='#FFFFFF';
+                    ctx.fill();
+                    ctx.strokeStyle='#FFFFFF';
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+                var myGraph1 = new Graph("myCanvas", field1, timeField1, 5);
+                var myGraph2 = new Graph("myCanvas2", field2, timeField2, 100);
+            });
+        });
+    });
+</script>
+<!auto refresh every 16 sec.>
+    <script>
+        setInterval(function(){
+            window.location.reload();
+        }, 16000);
+    </script>
+</body>
+</html>

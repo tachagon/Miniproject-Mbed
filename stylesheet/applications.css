@@ -1,0 +1,22 @@
+body{
+    background: url("./bg.jpg") no-repeat fixed;
+    background-size: 100% auto;
+}
+#page-wrap{
+    background: url("./bg.jpg") no-repeat fixed;
+    width: 1100px;
+    margin: 40px auto;
+    padding: 0;
+    margin-left: auto;
+}
+h1{
+    color: #FFFF99;
+    font-family: 'Times New Roman', Georgia, Serif;
+}
+h2{
+    color: white;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+}
+.myCanvas{
+    background: transparent;
+}
