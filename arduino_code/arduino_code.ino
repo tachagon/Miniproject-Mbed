@@ -3,7 +3,7 @@
 #define FOSC (16000000UL)
 #include <avr/io.h>
 
-//*********************************** usart set and method ***********************************
+//*********************************** usart set and method **********************************
 void USART_init( uint16_t baudrate ) {
   uint16_t ubrr;
   // UCSR0A register settings
@@ -53,7 +53,8 @@ uint8_t USART_receive( void ) {
   // Get and return received data from buffer
   return UDR0;
 }
-//*********************************** end usart set and method | ADC set and method ***********************************
+
+//**************** end usart set and method | ADC set and method ****************************
 
 void ADC_init() {
   DIDR0 = (1<<ADC5D)|(1<<ADC4D)|(1<<ADC3D)|(1<<ADC2D)|(1<<ADC1D)|(1<<ADC0D);
@@ -86,7 +87,8 @@ uint16_t readADC( uint8_t channel ){
   return (x & 0x3FF);
 }
 
-//*********************************** end ADC set and method | time/ counter 1 set and method ***********************************
+//***************** end ADC set and method | time/ counter 1 set and method *****************
+
 volatile uint16_t count = 0;
 
 void T1_init(uint8_t prescale) {
@@ -130,7 +132,7 @@ void delay_milli(uint16_t msec){
   while(TCNT1 < pece or count < b);
 }
 
-//*********************************** end time/counter1 set and method | main code ***********************************
+//********************** end time/counter1 set and method | main code ***********************
 
 void setup() {
   DDRD |= 1 << DDD3;// set pin3 = out
@@ -140,30 +142,10 @@ void setup() {
 }
 
 void loop() {
-  // read the input on analog pin 0,1:
-  int Vldr = readADC(0);
-  int Vtem = readADC(1);
-  // print out the value you read
-  String str = String(Vldr) + "," + String(Vtem) + "\n";
-  send_m(str);
-  
   PORTD |= 1 << 3;//set High port digital pin 3
-  delay_milli(100);
+  delay_micro(205);
   PORTD &= ~( 1 << 3 );//set Low port digital pin 3
-  delay_milli(13000);
-  
-  // below this line for lcd code
-  //--------------------------------------------
-  float Vldr2 = (float)Vldr*5/1023;
-  float Vtem2 = (float)Vtem*100/1023;
-  char text_lcd[8];
-  char text_lcd2[8];
-  dtostrf(Vldr2, 4, 2, text_lcd);
-  dtostrf(Vtem2, 4, 2, text_lcd2);
-  String str3 = String(text_lcd) + "," + String(text_lcd2) + "\n";
-  send_m(str3);
+  delay_micro(205);
 }
-//********************************end main code  ***********************************
 
-
-
+//************************************* end main code ***************************************
